@@ -9,24 +9,26 @@ from BaseAI_3 import BaseAI
 from random   import randint
 from heapq import heappush, heappop
 import time
+import math
 
 
 
 class PlayerAI(BaseAI):
     def getMove(self, grid):
         
-        start = time.clock()
+#        start = time.clock()
+        print()
         initialState = State(None, grid, 0, -1)
-#        initialState.childs = []
-#        print(initialState.childs)
+
+        initialState.calculateChilds("MIN")
+#        bestChild = self.decision(initialState, start)
         
-        bestChild = self.decision(initialState, start)
         
-        return bestChild.move
+        return 0
     
     def decision(self, state, start):
-        A = -1000000
-        B = 1000000
+        A = -math.inf
+        B = math.inf
         decisionT = self.maximize(state, A, B, start)
         return decisionT[0]
         
@@ -45,7 +47,7 @@ class PlayerAI(BaseAI):
             return self.evall(state)
         
         maxChild = None
-        maxUtility = -1000000
+        maxUtility = -math.inf
         
 #        print(time.clock())
 #        print(start)
@@ -86,7 +88,7 @@ class PlayerAI(BaseAI):
             return self.evall(state)
         
         minChild = None
-        minUtility = 1000000
+        minUtility = math.inf
         
         state.calculateChilds("MIN")
         for c in state.childs:
@@ -114,17 +116,20 @@ class State(object):
     
     parent = None
     move = -1
-    childs = []
+    childs = ()
     mark = -1
     
     def __init__(self, parent, grid, depth, move):
+       
         self.parent = parent
         self.grid = grid
         self.depth = depth
         self.move = move
+
         
-        
-        
+#    def __str__(self):
+#        return "State: " + str(self.depth) + ", " + str(self.childs)
+    
     def __eq__(self, othr):
         return self.grid == othr.grid
 
@@ -140,32 +145,48 @@ class State(object):
         
         if turn == "MAX":   #MAX Turn
             moves = self.grid.getAvailableMoves()
-
+            
+            listt = []
             for m in moves:
-                newGrid = self.grid.clone()          
+
+                newGrid = self.grid.clone()    
                 newGrid.move(m)
-                mark = len(newGrid.getAvailableCells()) 
+                mark = len(newGrid.getAvailableCells()) * 0.3 + newGrid.getMaxTile() * 0.7
                 newState = State(self, newGrid, self.depth + 1, m)
                 newState.mark = mark
-                newState.childs = []
-                self.childs.append(newState)
-               
+                listt.append(newState)
 
-            self.childs.sort(key = lambda x: x.mark)
-            
+            listt.sort(key = lambda x: x.mark, reverse = True)
+            self.childs = tuple(listt)
             
         else:  #MIN Turn
             
             emptyCells = self.grid.getAvailableCells()
-            
+            listt = []
             for i in range(len(emptyCells)):
-                newGrid = self.grid.clone()
                 
                 move = emptyCells[randint(0, len(emptyCells) - 1)]
-                newGrid.setCellValue(move, self.getRandomTileValue())
-                newState = State(self, newGrid, self.depth + 1, -1)
-                newState.childs = []
-                self.childs.append(newState)
+                
+                newGrid_2 = self.grid.clone()
+                newGrid_2.setCellValue(move, 2)
+                mark = len(newGrid_2.getAvailableCells()) * 0.3 + newGrid_2.getMaxTile() * 0.7
+                newState_2 = State(self, newGrid_2, self.depth + 1, -1)
+                newState_2.mark = mark
+                
+                newGrid_4 = self.grid.clone()
+                newGrid_4.setCellValue(move, 4)
+                mark = len(newGrid_4.getAvailableCells()) * 0.3 + newGrid_4.getMaxTile() * 0.7
+                newState_4 = State(self, newGrid_4, self.depth + 1, -1)
+                newState_4.mark = mark
+                
+                listt.append(newState_2)
+                listt.append(newState_4)
+                
+            listt.sort(key = lambda x: x.mark)
+            self.childs = tuple(listt)
+#            for c in self.childs:  
+#                g = c.grid
+#                print(g.map)
             
             
     def getRandomTileValue(self):

@@ -62,7 +62,9 @@ class GameManager:
 
         self.prevTime = time.clock()
 
-        while not self.isGameOver() and not self.over:
+        for i in range(4):
+            print("--------------------")
+#        while not self.isGameOver() and not self.over:
             # Copy to Ensure AI Cannot Change the Real Grid to Cheat
             gridCopy = self.grid.clone()
 
