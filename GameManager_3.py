@@ -19,6 +19,7 @@ actionDic = {
 
 # Time Limit Before Losing
 timeLimit = 0.2
+#timeLimit = 2
 allowance = 0.05
 
 class GameManager:
@@ -62,8 +63,8 @@ class GameManager:
 
         self.prevTime = time.clock()
 
-        for i in range(4):
-            print("--------------------")
+        for i in range(1):
+           
 #        while not self.isGameOver() and not self.over:
             # Copy to Ensure AI Cannot Change the Real Grid to Cheat
             gridCopy = self.grid.clone()
