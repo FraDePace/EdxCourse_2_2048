@@ -17,7 +17,7 @@ class PlayerAI(BaseAI):
         
         start = time.clock()
         initialState = State(None, grid, 0, -1)
-        initialState.childs = []
+#        initialState.childs = []
 #        print(initialState.childs)
         
         bestChild = self.decision(initialState, start)
