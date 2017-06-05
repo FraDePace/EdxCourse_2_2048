@@ -18,8 +18,8 @@ actionDic = {
 (PLAYER_TURN, COMPUTER_TURN) = (0, 1)
 
 # Time Limit Before Losing
-timeLimit = 0.2
-#timeLimit = 2
+#timeLimit = 0.2
+timeLimit = 2
 allowance = 0.05
 
 class GameManager:
@@ -52,8 +52,27 @@ class GameManager:
             self.prevTime = time.clock()
 
     def start(self):
-        for i in range(self.initTiles):
-            self.insertRandonTile()
+#        for i in range(self.initTiles):
+#            self.insertRandonTile()
+        
+        self.grid.setCellValue((0,0), 8)
+        self.grid.setCellValue((0,1), 128)
+        self.grid.setCellValue((0,2), 16)
+        self.grid.setCellValue((0,3), 4)
+        self.grid.setCellValue((1,0), 64)
+        self.grid.setCellValue((1,1), 16)
+        self.grid.setCellValue((1,2), 4)
+        self.grid.setCellValue((1,3), 2)
+        self.grid.setCellValue((2,0), 4)
+        self.grid.setCellValue((2,1), 4)
+        self.grid.setCellValue((2,2), 0)
+        self.grid.setCellValue((2,3), 0)
+        self.grid.setCellValue((3,0), 8)
+        self.grid.setCellValue((3,1), 4)
+        self.grid.setCellValue((3,2), 0)
+        self.grid.setCellValue((3,3), 0)
+
+
 
         self.displayer.display(self.grid)
 
@@ -63,9 +82,9 @@ class GameManager:
 
         self.prevTime = time.clock()
 
-        for i in range(1):
+#        for i in range(1):
            
-#        while not self.isGameOver() and not self.over:
+        while not self.isGameOver() and not self.over:
             # Copy to Ensure AI Cannot Change the Real Grid to Cheat
             gridCopy = self.grid.clone()
 
