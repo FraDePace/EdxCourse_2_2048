@@ -17,11 +17,13 @@ class PlayerAI(BaseAI):
     
     def getMove(self, grid):
         
-        
+        explored.clear()
         initialState = State(None, grid, 0, -1)
         start = time.clock()
         best = self.decision(initialState, start)
-        print(best)
+#        initialState.calculateChildren("MIN")
+        
+        
         return best.move
     
     def decision(self, state, start):
@@ -40,7 +42,7 @@ class PlayerAI(BaseAI):
         diff = time.clock() - start
         
         if diff > 0.17 or len(state.grid.getAvailableMoves()) <= 0:
-            print(len(state.grid.getAvailableMoves()))
+            
             return self.evall(state)
         
         else:
@@ -71,7 +73,7 @@ class PlayerAI(BaseAI):
         diff = time.clock() - start
         
         if diff > 0.17 or len(state.grid.getAvailableCells()) <= 0:
-            print(len(state.grid.getAvailableCells()))
+            
             return self.evall(state)
         
         else:
@@ -132,12 +134,13 @@ class State(object):
         if turn == "MAX":
             listt = []
             moves = self.grid.getAvailableMoves()
+            originalAvailableCells = len(self.grid.getAvailableCells())
             for m in moves:
                 newGrid = self.grid.clone()
                 newGrid.move(m)
-                
                 if str(newGrid.map) not in explored:
-                    mark = len(newGrid.getAvailableCells())
+                    newAvailableCells = len(newGrid.getAvailableCells()) 
+                    mark = self.monotonic(newGrid) * 0.6 + self.smoothnessMax(originalAvailableCells, newAvailableCells) * 0.4  
                     newState = State(self, newGrid, self.depth + 1, m)
                     newState.mark = mark
                     listt.append(newState)
@@ -146,7 +149,7 @@ class State(object):
                 heappush(self.childs,(l.mark, l))
                 
                 
-        else:
+        else:  #MIN Turn
             listt = []
             cells = self.grid.getAvailableCells()
             
@@ -156,7 +159,7 @@ class State(object):
                 newGrid.setCellValue(move, self.getNewTileValue())
                 if str(newGrid.map) not in explored:
                     newState = State(self, newGrid, self.depth + 1, -1)
-                    mark = len(newGrid.getAvailableCells())
+                    mark = self.monotonic(newGrid) * 0.6 + self.smoothnessMin(newGrid) * 0.4
                     newState.mark = mark
                     listt.append(newState)
                     explored.add(str(newGrid.map))
@@ -168,7 +171,71 @@ class State(object):
             return 2
         else:
             return 4
-                
+        
+    def monotonic(self, grid):
+        
+        countRow = [0,0,0,0]
+      
+        for i in range(grid.size):
+            crescente = -1
+            for j in range(grid.size):
+                if grid.map [i][j] >= crescente:
+                    crescente = grid.map [i][j]
+                    countRow[i] += 1
+                else:
+                    break
+        
+        countColumn = [0,0,0,0]
+        for j in range(grid.size):
+            crescente = math.inf
+            for i in range(grid.size):
+                if grid.map [i][j] <= crescente:
+                    crescente = grid.map [i][j]
+                    countColumn[j] += 1
+                else:
+                    break
+        monotonicMark = 0
+        for i in range(len(countRow)):
+            if countRow[i] == 4:
+                monotonicMark += 1
+            if countColumn[i] == 4:
+                monotonicMark += 1
+        
+        return monotonicMark
+    
+    def smoothnessMax(self, originalAvailableCells, newAvailableCells):
+        
+        diff = 0
+        diff = abs(originalAvailableCells - newAvailableCells)
+        return diff
+    
+    def smoothnessMin(self, grid):
+        
+        smooth = 0
+        
+        for i in range(grid.size):
+            saved = -1
+            for j in range(grid.size):
+                if grid.map[i][j] != 0:
+                    if grid.map[i][j] != saved:
+                        saved = grid.map[i][j]
+                    else:
+                        smooth += 1
+                        saved = -1
+        
+                     
+        for j in range(grid.size):
+            saved = -1
+            for i in range(grid.size):
+                if grid.map [i][j] != 0:
+                    if grid.map[i][j] != saved:
+                        saved = grid.map[i][j]
+                    else:
+                        smooth += 1
+                        saved = -1
+        
+        return smooth
+             
                 
                 
                 
